@@ -7,8 +7,6 @@ package chatapplication;
 
 import java.awt.Color;
 
-
-
 /**
  *
  * @author Pinder
@@ -19,15 +17,12 @@ public class ChatApp extends javax.swing.JFrame {
      * Creates new form ChatApp
      */
     public ChatApp() {
-    
-       this.setTitle("ChatApp");
-        
-     this.setUndecorated(true);
+        this.setTitle("ChatApp");
+
+        this.setUndecorated(true);
         initComponents();
-      // getContentPane().setBackground(Color.GRAY);
+        // getContentPane().setBackground(Color.GRAY);
         this.setLocationRelativeTo(null);
-        
-        
     }
 
     /**
@@ -90,17 +85,15 @@ public class ChatApp extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-    this.setVisible(false);
-    new MultiClient();
-    
-    
+        this.setVisible(false);
+        new MultiClient();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
        
         // TODO add your handling code here:
         this.setVisible(false);
-       System.exit(1);
+        System.exit(1);
     }//GEN-LAST:event_jButton3ActionPerformed
 
     /**

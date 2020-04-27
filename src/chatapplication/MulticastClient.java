@@ -12,31 +12,19 @@ import java.io.*;
 import java.util.*;
 import javax.swing.JOptionPane;
 
-
-
-/**
- *
- * @author Pinder
- */
 public  class MulticastClient extends javax.swing.JFrame {
- public static String name;
-public static String message;
-public static MulticastSocket socket=null;
-public static InetAddress address ;  
-public static DatagramSocket s=null;
-/**
+    public static String name;
+    public static String message;
+    public static MulticastSocket socket=null;
+    public static InetAddress address ;
+    public static DatagramSocket s=null;
+    /**
      * Creates new form MulticastServerThread
      */
-    public MulticastClient()  {
-        
+    public MulticastClient() {
         initComponents();
-       this.setLocationRelativeTo(null);
-       
-    
-            
-      
-}  
-   
+        this.setLocationRelativeTo(null);
+    }
    
     /**
      * This method is called from within the constructor to initialize the form.
@@ -155,63 +143,62 @@ public static DatagramSocket s=null;
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-      
-         String x="***** "+name+" has logged out from the chat room *****";
-         
-            byte buf[]=x.getBytes();
-              try{  InetAddress group = InetAddress.getByName("230.0.0.1");
-                DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4446);
-              
-             
-               s.send(packet);
-              }catch(Exception e){}
-        x="exited";
-        buf=x.getBytes();
-        try{
-        InetAddress group=InetAddress.getByName("230.0.0.2");
-        DatagramPacket packet=new DatagramPacket(buf, buf.length,group,5000);
-        s.send(packet);
-            
-          socket.leaveGroup(address);
-           s.close();
-     
-          }
-           catch(Exception e){}
-        this.setVisible(false);
-           new ChatApp().setVisible(true);   
-        
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
+        // GEN-FIRST:event_jButton2ActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-      
+        String x="***** "+name+" has logged out from the chat room *****";
+        byte[] buf = x.getBytes();
+
+        try {
+            InetAddress group = InetAddress.getByName("230.0.0.1");
+            DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4446);
+            s.send(packet);
+        }
+        catch(Exception e) {
+        }
+
+        x = "exited";
+        buf = x.getBytes();
+
+        try {
+            InetAddress group=InetAddress.getByName("230.0.0.2");
+            DatagramPacket packet=new DatagramPacket(buf, buf.length,group,5000);
+            s.send(packet);
+
+            socket.leaveGroup(address);
+            s.close();
+        }
+        catch(Exception e) {
+        }
+
+        this.setVisible(false);
+        new ChatApp().setVisible(true);
+
+    } // GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
+        //GEN-FIRST:event_jButton1ActionPerformed
+
         String text= jTextArea2.getText();
-         if(!text.equals(""))
-         {    message=name+": "+text;
-    
-         try {
-             
+        if(!text.equals(""))
+        {    message=name+": "+text;
+
+            try {
                 byte[] buf ;
- 
-                  
-                                 
-                   
                 buf = message.getBytes();
-             
-            // send it
-          
+
+                // send it
                 InetAddress group = InetAddress.getByName("230.0.0.1");
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4446);
-               
-              s.send(packet);  
-            
-           
-               }       
-         catch (IOException e) {
-               // System.out.println(e);
-                 MulticastClient.socket.close();
-         }   }
-    }//GEN-LAST:event_jButton1ActionPerformed
+
+                s.send(packet);
+            }
+            catch (IOException e) {
+                // System.out.println(e);
+                MulticastClient.socket.close();
+            }
+        }
+    } // GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -229,15 +216,13 @@ public static DatagramSocket s=null;
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                
-                    new MulticastClient().setVisible(true);
-                
+                new MulticastClient().setVisible(true);
                     }
                }
         );
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify // GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
@@ -249,70 +234,67 @@ public static DatagramSocket s=null;
     public static javax.swing.JTextArea jTextArea1;
     public static javax.swing.JTextArea jTextArea2;
     public static javax.swing.JTextArea jTextArea3;
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration // GEN-END:variables
 }
 
  
 
  class Client implements Runnable {
-  
-     Client(){
+     public Client() {
          try{
-         MulticastClient.socket = new MulticastSocket(4446) ;
-        MulticastClient. s=new DatagramSocket();
-        
-        MulticastClient. address=InetAddress.getByName("230.0.0.1");
-      MulticastClient.socket.joinGroup(MulticastClient.address);
-      }
-        catch(Exception e)
-        {JOptionPane.showMessageDialog(new ChatApp(), "Sorry,Cannot bind");}}
-  @Override
-  public void run(){
-      Thread t3=new Thread(new OnlineStatus());
-         
-           t3.start();
-       Thread t4=new Thread(new ReceiveOnlineStatus());
-            t4.start();
-       newUser();
-           
-     
-           
-  
-      
-  while(true)
-      {  
-          
-      try{
-    
-      
-         
-     
-         DatagramPacket packet;
-       
-         
-         
-         byte[] buf = new byte[256];
-         packet = new DatagramPacket(buf, buf.length);
-         
-           MulticastClient.socket.receive(packet);
-        
-         String received = new String(packet.getData(), 0, packet.getLength());
-         
-     MulticastClient.jTextArea1.setText(MulticastClient.jTextArea1.getText()+received+"\n");
-        
-        MulticastClient.jTextArea2.setText("");
-                  }catch(IOException e){System.err.println(e);}
-       }  
- 
- 
- } void newUser(){String x="***** "+name+" has logged into the chat room *****";
-            byte buf[]=x.getBytes();
-              try{  InetAddress group = InetAddress.getByName("230.0.0.1");
-                DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4446);
-              
-             
-               s.send(packet);
-              }catch(Exception e){}}
+             MulticastClient.socket = new MulticastSocket(4446) ;
+             MulticastClient.s = new DatagramSocket();
+
+             MulticastClient. address=InetAddress.getByName("230.0.0.1");
+             MulticastClient.socket.joinGroup(MulticastClient.address);
+         }
+         catch(Exception e) {
+             JOptionPane.showMessageDialog(new ChatApp(), "Sorry,Cannot bind");
+         }
+     }
+
+     @Override
+     public void run() {
+         Thread t3=new Thread(new OnlineStatus());
+
+         t3.start();
+         Thread t4=new Thread(new ReceiveOnlineStatus());
+         t4.start();
+         newUser();
+
+         while(true) {
+             try {
+                 DatagramPacket packet;
+
+                 byte[] buf = new byte[256];
+                 packet = new DatagramPacket(buf, buf.length);
+
+                 MulticastClient.socket.receive(packet);
+
+                 String received = new String(packet.getData(), 0, packet.getLength());
+
+                 MulticastClient.jTextArea1.setText(MulticastClient.jTextArea1.getText()+received+"\n");
+
+                 MulticastClient.jTextArea2.setText("");
+             }
+             catch(IOException e) {
+                 System.err.println(e);
+             }
+         }
+     }
+
+     void newUser() {
+         String x="***** "+name+" has logged into the chat room *****";
+         byte[] buf=x.getBytes();
+
+         try {
+             InetAddress group = InetAddress.getByName("230.0.0.1");
+             DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4446);
+             s.send(packet);
+         }
+         catch(Exception e) {
+         }
+     }
   }
  
  
