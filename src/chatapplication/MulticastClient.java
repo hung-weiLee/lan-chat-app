@@ -2,6 +2,8 @@ package chatapplication;
 
 import static chatapplication.MulticastClient.name;
 import static chatapplication.MulticastClient.s;
+
+import java.awt.event.ActionEvent;
 import java.net.*;
 import java.io.*;
 import java.util.*;
@@ -10,6 +12,7 @@ import javax.swing.JOptionPane;
 public  class MulticastClient extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -51,6 +54,7 @@ public  class MulticastClient extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         jTextArea3 = new javax.swing.JTextArea();
         jLabel3 = new javax.swing.JLabel();
+        jButton3 = new javax.swing.JButton();
 
         this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE); // click "X" to Exit the application
 
@@ -94,6 +98,17 @@ public  class MulticastClient extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Gabriola", 1, 24)); // NOI18N
         jLabel3.setText("Online users");
 
+        jButton3.setText("Send File");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    jButton3ActionPerformed(evt);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -116,8 +131,8 @@ public  class MulticastClient extends javax.swing.JFrame {
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 326, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(73, 73, 73)
-                                .addComponent(jButton2)))
+                                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButton2)))
                         .addGap(0, 163, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -141,10 +156,29 @@ public  class MulticastClient extends javax.swing.JFrame {
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton2)))
+                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton2)))
                 .addContainerGap())
         );
         pack();
+    }
+
+    private void jButton3ActionPerformed(ActionEvent evt) throws IOException {
+        BufferedInputStream buf = new BufferedInputStream(new FileInputStream("example1.txt"));
+        int fileSize = buf.available();
+
+        byte[] file = new byte[fileSize];
+        buf.read(file, 0, fileSize);
+
+        try {
+            InetAddress group = InetAddress.getByName("230.0.0.1"); // server address
+            DatagramPacket packet = DatagramPacketFactory.create_send(file, group, 4446); // send
+
+            s.send(packet); // send packet
+        }
+        catch (IOException e) {
+            MulticastClient.socket.close();
+        }
     }
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
@@ -157,7 +191,7 @@ public  class MulticastClient extends javax.swing.JFrame {
                 byte[] buf = message.getBytes(); // message
 
                 InetAddress group = InetAddress.getByName("230.0.0.1"); // server address
-                DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4446); // send
+                DatagramPacket packet = DatagramPacketFactory.create_send(buf, group, 4446);
 
                 s.send(packet); // send packet
             }
@@ -173,7 +207,7 @@ public  class MulticastClient extends javax.swing.JFrame {
 
         try {
             InetAddress group = InetAddress.getByName("230.0.0.1");
-            DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4446); // send
+            DatagramPacket packet = DatagramPacketFactory.create_send(buf, group, 4446); // send
             s.send(packet); // send packet
         }
         catch(Exception e) {
@@ -183,8 +217,8 @@ public  class MulticastClient extends javax.swing.JFrame {
         buf = x.getBytes();
 
         try {
-            InetAddress group=InetAddress.getByName("230.0.0.2");
-            DatagramPacket packet = new DatagramPacket(buf, buf.length, group,5000); // send
+            InetAddress group = InetAddress.getByName("230.0.0.2");
+            DatagramPacket packet = DatagramPacketFactory.create_send(buf, group,5000); // send
             s.send(packet); // send packet
 
             socket.leaveGroup(address);
@@ -203,9 +237,9 @@ public  class MulticastClient extends javax.swing.JFrame {
  class Client implements Runnable {
      public Client() {
          try{
-             MulticastClient.s = new DatagramSocket(); // client DatagramSocket
+             MulticastClient.s = DatagramSocketFactory.create(); // client DatagramSocket
 
-             MulticastClient.socket = new MulticastSocket(4446) ; // MulticastSocket, port: 4446
+             MulticastClient.socket = MulticastSocketFactory.create(4446); // MulticastSocket, port: 4446
              MulticastClient.address = InetAddress.getByName("230.0.0.1"); // board cast ip
              MulticastClient.socket.joinGroup(MulticastClient.address);
          }
@@ -222,18 +256,18 @@ public  class MulticastClient extends javax.swing.JFrame {
          Thread t4 = new Thread(new ReceiveOnlineStatus());
          t4.start();
 
-         newUser();
+         newUser(); // call newUser method
 
          while(true) {
              try {
                  byte[] buf = new byte[256];
-                 DatagramPacket packet = new DatagramPacket(buf, buf.length); // receive
+                 DatagramPacket packet = DatagramPacketFactory.create_receive(buf); // receive
 
                  MulticastClient.socket.receive(packet); // MulticastSocket receive packet
 
                  // transfer packet to string
                  String received = new String(packet.getData(), 0, packet.getLength());
-                 System.out.println("received: " + received);
+                 //System.out.println("received: " + received);
 
                  MulticastClient.jTextArea1.setText(MulticastClient.jTextArea1.getText() + received + "\n");
 
@@ -246,14 +280,14 @@ public  class MulticastClient extends javax.swing.JFrame {
      }
 
      public void newUser() {
-         System.out.println("new user");
+         //System.out.println("new user");
 
          String x = "***** " + name + " has logged into the chat room *****";
          byte[] buf = x.getBytes();
 
          try {
              InetAddress group = InetAddress.getByName("230.0.0.1");
-             DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4446); // send
+             DatagramPacket packet = DatagramPacketFactory.create_send(buf, group, 4446); // send
              s.send(packet); // send packet
          }
          catch(Exception e) {

@@ -10,7 +10,7 @@ public class OnlineStatus implements Runnable {
 
     public OnlineStatus() {
         try {
-            s = new DatagramSocket(); // client DatagramSocket
+            s = DatagramSocketFactory.create(); // client DatagramSocket
         }
         catch (SocketException ex) {
         }
@@ -18,14 +18,14 @@ public class OnlineStatus implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("T3");
+        //System.out.println("T3");
         while(true) {
             try {
                 byte[] buf = MulticastClient.name.getBytes(); // name
 
                 // send it
                 InetAddress group = InetAddress.getByName("230.0.0.2");
-                DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 5000); // send
+                DatagramPacket packet = DatagramPacketFactory.create_send(buf, group, 5000); // send
 
                 s.send(packet); // send packet
                 try {
@@ -52,7 +52,7 @@ class ReceiveOnlineStatus implements Runnable {
         try{
             al = new ArrayList<>();
 
-            socket = new MulticastSocket(5000) ; // MulticastSocket, port: 5000
+            socket = MulticastSocketFactory.create(5000) ; // MulticastSocket, port: 5000
             address = InetAddress.getByName("230.0.0.2"); // board cast ip
             socket.joinGroup(address);
         }
@@ -64,16 +64,16 @@ class ReceiveOnlineStatus implements Runnable {
     @Override
     public void run() {
         while(true) {
-            System.out.println("T4");
+            //System.out.println("T4");
             try {
                 byte[] buf = new byte[256];
-                DatagramPacket packet = new DatagramPacket(buf, buf.length); // receive
+                DatagramPacket packet = DatagramPacketFactory.create_receive(buf); // receive
 
                 socket.receive(packet); // MulticastSocket receive packet
 
                 // transfer packet to string
                 String name = new String(packet.getData(), 0, packet.getLength());
-                System.out.println("name: " + name);
+                //System.out.println("name: " + name);
 
                 if(name.equals("exited"))
                     al = new ArrayList<>();
