@@ -1,7 +1,5 @@
 # LanChatApp
-A Lan chat app built in Java by the use of network programming. Uses UDP (User Datagram Protocol) to send a message to all the clients through multicasting. The desktop application can be used  in a Local area network  to 
-connect and text other users. Multiple users can text at the same time.
-The project is built using Netbeans IDE. To use this project, just clone the repository and open the project using netbeans IDE.
+A Lan chat app built in Java by the use of network programming and Swing. The main mechanism of the project which allows multiple users can send message at the same time, and can be used in a Local area network to connect and text other users. This project uses UDP (User Datagram Protocol) to send a message to all the clients through Multicasting.
 # App in working
 
 ![alt text](https://github.com/PushpinderSinghGrewal/LanChatApp/blob/master/lanchatapp.jpeg)
